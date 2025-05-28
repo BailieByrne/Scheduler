@@ -24,6 +24,7 @@ Tasks are created with:
 std::make_shared<Task>(id, priority, std::vector<std::string>{"command", "arg1", "arg2"});
 
 Example:
+
 auto t = std::make_shared<Task>(1, 5, {"add", "2", "3"});
 scheduler.addTask(t);
 
