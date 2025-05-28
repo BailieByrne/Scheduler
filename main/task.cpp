@@ -11,6 +11,7 @@ extern std::mutex coutMutex;
 class Task {
 public:
     int taskID;
+    int timeLimit = 5; // Default 5
     int taskPriority;
     std::vector<std::string> taskArgs; 
     std::atomic<bool> interrupted{false}; // Make interrupted atomic
@@ -18,10 +19,11 @@ public:
 
 
     //Valid Constrcutor
-    Task(int id, int priority, std::vector<std::string> name) : taskID(id), taskPriority(priority), taskArgs(name) {}
+    Task(int priority, std::vector<std::string> name) : taskPriority(priority), taskArgs(name) {}
 
-    //Malformed Task Request
-    Task() : taskID(0), taskPriority(0), taskArgs({"MALFORMED"}){
+
+    Task () : taskID(0), taskPriority(0), timeLimit(5), taskArgs( {"MALFORMED"}) {
+        // Default constructor initializes with default values
     }
  
 

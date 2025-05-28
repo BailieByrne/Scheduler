@@ -19,8 +19,7 @@ public:
     Clock taskClock;
     volatile int lastCount;
     bool running = true;
-
-    int taskLimit = 5; // Limit for task execution counts (100ms) //One taskLimit is 20ms
+    int taskID = 0;
 
     //Simple Method to add tasks
     void addTask(std::shared_ptr<Task> task){
@@ -51,6 +50,8 @@ public:
             if (highestPrioTask != taskList.end()) {
                 Task* taskPtr = highestPrioTask->get();
 
+                taskPtr->taskID = taskID++; // Assign a unique ID to the task
+
                 taskPtr->interrupted.store(false, std::memory_order_release); // Reset the interrupted flag
                 taskPtr->completed.store(false, std::memory_order_release); // Reset the completed flag
 
@@ -60,15 +61,15 @@ public:
                 
                 // Wait for the task to complete or timeout
                 std::thread timer([this, taskPtr, startcount = taskClock.getClockCount(), highestPrioTask]() {
-                    while (taskClock.getClockCount() - startcount <  taskLimit){
+                    while (taskClock.getClockCount() - startcount <  taskPtr->timeLimit){
                         if (taskPtr->completed.load(std::memory_order_acquire)) {
                             taskList.erase(highestPrioTask);
                             return;
                         }
                     }
                     taskPtr->interrupt();
-                    taskPtr->taskPriority --;
-                    taskLimit ++;
+                    taskPtr->taskPriority = std::max(taskPtr->taskPriority - 1, -1); // Decrease priority if not completed
+                    taskPtr->timeLimit = std::min(taskPtr->timeLimit + 1, 100); //Clamp timeLimit to a maximum of 500ms
                 });
                 
                 timer.join();
@@ -94,13 +95,20 @@ int main(){
     TaskScheduler systemScheduler;
 
     //Test Tasks
-    auto firsttask = std::make_shared<Task>(0,1,std::vector<std::string>{"add","5","6"});
-    auto secondtask = std::make_shared<Task>(1,5,std::vector<std::string>{"add","5","5"});
+    auto firsttask = std::make_shared<Task>(1,std::vector<std::string>{"add","5","6"});
+    auto secondtask = std::make_shared<Task>(5,std::vector<std::string>{"add","5","5"});
     auto thirdtask = std::make_shared<Task>();
-    auto testtask = std::make_shared<Task>(2,7,std::vector<std::string>{"reverse","TESTING TASKS"});
-    auto factorialtask = std::make_shared<Task>(3,7,std::vector<std::string>{"factorial","5"});
+    auto testtask = std::make_shared<Task>(7,std::vector<std::string>{"reverse","TESTING TASKS"});
+    auto factorialtask = std::make_shared<Task>(15,std::vector<std::string>{"factorial","5"});
     auto errortask = std::make_shared<Task>();
-    auto fourthtask = std::make_shared<Task>(4,6,std::vector<std::string>{"print","HELLO WORLD"});
+    auto fourthtask = std::make_shared<Task>(6,std::vector<std::string>{"print","HELLO WORLD"});
+
+
+    //Adding random tasks to the scheduler
+    for (int i = 0; i < 100; ++i) {
+        auto randomTask = std::make_shared<Task>(rand() % 15, std::vector<std::string>{"add", std::to_string(rand() % 100), std::to_string(rand() % 100)});
+        systemScheduler.addTask(randomTask);
+    }
 
     systemScheduler.addTask(firsttask);
     systemScheduler.addTask(factorialtask);
