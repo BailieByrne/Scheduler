@@ -1,7 +1,7 @@
 🧠 Task Scheduler (C++ Multithreaded)
 A lightweight, priority-based multithreaded task scheduler written in C++ as preparation for a 12-week BAE internship. The scheduler executes tasks concurrently with support for timeouts, safe interruption, and thread-safe logging.
 
-===================================================================================================================================================
+
 
 🚀 Features:
 - ✅ Priority-based task execution
@@ -16,14 +16,6 @@ A lightweight, priority-based multithreaded task scheduler written in C++ as pre
 
 - 🛠 Supports commands like add, print, reverse, and factorial
 
-===================================================================================================================================================
-
-📁 File Structure
-    ├── main.cpp           // Contains TaskScheduler class and entry point
-    ├── task.cpp           // Task logic and command execution
-    ├── clock.cpp          // Clock implementation with ticking mechanism
-    
-===================================================================================================================================================
 
 
 🧪 Example Tasks
@@ -35,11 +27,10 @@ Example:
 auto t = std::make_shared<Task>(1, 5, {"add", "2", "3"});
 scheduler.addTask(t);
 
-===================================================================================================================================================
 
 
 🛠 Commands Supported
-Command	Description	Example
+Command	Description	Example:
 add	Adds two numbers	{"add", "5", "10"}
 print	Prints a message	{"print", "Hello"}
 reverse	Reverses a string	{"reverse", "test"}
